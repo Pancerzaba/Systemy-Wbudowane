@@ -100,7 +100,34 @@ void main(void) {
     unsigned char licznik = 0;
     unsigned int j=0;
     
+    
     while(1)
+    {
+        PORTD = display;
+        delay(500); //Opoznienie
+        
+        //Symulator nie jest doskonaly - drobne spowolnienie odczytu przycisków
+        unsigned int i = 6000;
+        while(PORTBbits.RB4 && PORTBbits.RB3 && i > 0)
+        {
+            i--;
+        }
+        
+        if(PORTBbits.RB3 == 0)
+        {
+            display --;
+        }
+        else if(PORTBbits.RB4 == 0)
+        {
+            display = 0;
+        }
+        else
+            display++;   
+    }
+    
+    
+    
+   /* while(1)
     {
         PORTD = display;
         delay(500); //Opoznienie
@@ -126,7 +153,7 @@ void main(void) {
         else if(j=1)display=IntToGray(licznik);
         else if(j=2)j=0;
         else if (j>2)j=2;
-    }
+    }*/
     
     
     return;
