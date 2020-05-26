@@ -74,9 +74,27 @@ void delay(unsigned int ms)
  }
 }
 
+unsigned int adc(unsigned char kanal)
+{
+    switch(kanal)
+    {
+        case 0: ADCON0=0x01; break; //P1
+        case 1: ADCON0=0x05; break; //P2
+        case 2: ADCON0=0x09; break; 
+    }
+    
+    ADCON0bits.GO=1;
+    while(ADCON0bits.GO == 1);
+
+   return ((((unsigned int)ADRESH)<<2)|(ADRESL>>6));
+}
+
 void main(void) {
     
-    ADCON1=0x0F;
+    //Inicjalizacja konwertera analogowo cyfrowego
+    ADCON0=0x01;
+    ADCON1=0x0B;
+    ADCON2=0x01;
     
     TRISA=0xC3;
     TRISB=0x3F;   
@@ -84,34 +102,40 @@ void main(void) {
     TRISD=0x00;
     TRISE=0x00;
     
-    PORTB = 0;
-    
     unsigned char display = 0;
-    
+    unsigned int tmp = 0;
+    int a=0;
     while(1)
     {
-        PORTD = display;
-        delay(500); //Opoznienie
+        PORTD = display; //Wyswietlenie na diodach rejestru D
         
-        //Symulator nie jest doskonaly - drobne spowolnienie odczytu przycisków
-        unsigned int i = 6000;
-        while(PORTBbits.RB4 && PORTBbits.RB3 && i > 0)
-        {
-            i--;
+        delay(1000);
+        
+        
+         if(PORTBbits.RB3 == 0){
+             tmp=0;
+             display = 0;
+         }
+         else{
+            //Odczyt
+            tmp=((unsigned int)adc(0) / 256);
+            //odczyt postepuje co 10
+            //display = (unsigned char)(tmp);
+         }
+        
+        if(tmp>1){
+            if(a<5){
+                if(display == 0){
+                display=1;}
+                else{ display=0;}
+                a++;
+            }else {
+                display=255;
+                tmp=0;
+            }
         }
         
-        if(PORTBbits.RB3 == 0)
-        {
-            display --;
-        }
-        else if(PORTBbits.RB4 == 0)
-        {
-            display = 0;
-        }
-        else
-            display++;   
     }
-    
     
     return;
 }
