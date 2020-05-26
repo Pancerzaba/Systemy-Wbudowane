@@ -55,6 +55,10 @@
 
 #include <xc.h>
 
+#pragma config EBTRB = OFF
+
+#include <xc.h>
+
 void delay(unsigned int ms)
 {
     unsigned int i;
@@ -73,20 +77,41 @@ void delay(unsigned int ms)
    }
  }
 }
+
+unsigned int adc(unsigned char kanal)
+{
+    switch(kanal)
+    {
+        case 0: ADCON0=0x01; break; //P1
+        case 1: ADCON0=0x05; break; //P2
+        case 2: ADCON0=0x09; break; 
+    }
+    
+    ADCON0bits.GO=1;
+    while(ADCON0bits.GO == 1){
+        
+    }
+
+   return ((((unsigned int)ADRESH)<<2)|(ADRESL>>6));
+}
 unsigned int IntToBCD(unsigned char input)
 {
+   // input++;
    input = ((input / 10)<<4)|(input & 10);
    return input;
 }
 unsigned int IntToGray(unsigned char input){
-    input = input^(input>>1);
+    input++;
+    //input = input^(input>>1);
     return input;
 }
-
-
 void main(void) {
     
-    ADCON1=0x0F;
+    //Inicjalizacja konwertera analogowo cyfrowego
+    ADCON0=0x01;
+    ADCON1=0x0B;
+    ADCON2=0x01;
+    //ADCON1=0x0F;
     
     TRISA=0xC3;
     TRISB=0x3F;   
@@ -96,16 +121,35 @@ void main(void) {
     
     PORTB = 0;
     
-    unsigned char display = 0;
-    unsigned char licznik = 0;
-    unsigned int j=0;
-    
+    unsigned char display = 1;
+    unsigned int tmp = 0;
+    unsigned int dis = 10;
+    unsigned int a =0;
     
     while(1)
     {
-        PORTD = display;
-        delay(500); //Opoznienie
+        PORTD = display; //Wyswietlenie na diodach rejestru D
         
+       
+        //Odczyt
+        tmp=((unsigned int)adc(1) /200);
+        //odczyt postepuje co 10
+         int s=0;
+         if(tmp<1)
+             s=1000;
+         else if(tmp<2)
+             s=700;
+         else if(tmp<3)
+             s=300;
+         else if(tmp<4)
+             s=100;
+         else
+             s=10;
+        delay(s);
+        //display=tmp;
+       // display = (unsigned char)(tmp);
+        
+      
         //Symulator nie jest doskonaly - drobne spowolnienie odczytu przycisków
         unsigned int i = 6000;
         while(PORTBbits.RB4 && PORTBbits.RB3 && i > 0)
@@ -115,45 +159,26 @@ void main(void) {
         
         if(PORTBbits.RB3 == 0)
         {
-            display --;
+            display = a++;
         }
         else if(PORTBbits.RB4 == 0)
         {
-            display = 0;
+            display = a--;
         }
         else
-            display++;   
+            display = a;   
+        
+          if(a>1){a=1;}
+        
+        
+        else if(a==0){
+            display= IntToBCD(dis);
+            
+        }else if (a==1){
+            display = IntToGray(dis);
+        }
+        dis++;
     }
-    
-    
-    
-   /* while(1)
-    {
-        PORTD = display;
-        delay(500); //Opoznienie
-        
-        //Symulator nie jest doskonaly - drobne spowolnienie odczytu przycisków
-        unsigned int i = 6000;
-        while(PORTBbits.RB4 && PORTBbits.RB3 && i > 0)
-        {
-            i--;
-        }        
-        if(PORTBbits.RB3 == 0)
-        {
-            j++;
-        }
-        else if(PORTBbits.RB4 == 0)
-        {
-            j--;
-        }
-        else j=j;
-          
-        
-         if(j=0)display= IntToBCD(licznik);
-        else if(j=1)display=IntToGray(licznik);
-        else if(j=2)j=0;
-        else if (j>2)j=2;
-    }*/
     
     
     return;
