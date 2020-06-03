@@ -1,4 +1,4 @@
-// CONFIG1H
+p   // CONFIG1H
 #pragma config OSC = HSPLL      // Oscillator Selection bits (HS oscillator, PLL enabled (Clock Frequency = 4 x FOSC1))
 #pragma config FCMEN = OFF      // Fail-Safe Clock Monitor Enable bit (Fail-Safe Clock Monitor disabled)
 #pragma config IESO = OFF       // Internal/External Oscillator Switchover bit (Oscillator Switchover mode disabled)
@@ -185,57 +185,30 @@ void main(void) {
     unsigned int min=0;
     unsigned int sek=0;
     
-    
-         // delay(1000);
-       lcd_cmd(L_CLR);
-       lcd_cmd(L_L1); //Ustawienie karetki w pierwszej linii
-       //lcd_str("Moc 800W        "); //napis
-       //lcd_cmd(L_L2); //Przej??ie do drugiej linii
-       //lcd_str("Czas 00:00      "); //napis
-      
-     //  lcd_str(a<<min);
-       //lcd_str("Czas 00:00      ");
-       
-       
-       
-       
-       
-       
-       
-       int time;
     while(1){   
         delay(500);
-        if(sek>60)
+        if(sek>59) //jezeli pokaze wiecej niz 60 sekund to zeruj
             sek=0;
         lcd_cmd(L_L1);
-         if(a%4 == 1)
-                lcd_str("Moc 800W        "); //napis
-            else if(a%4 == 2)
-                lcd_str("Moc 600W        "); //napis
-            else if(a%4 == 3)
-                lcd_str("Moc 350W        "); //napis
-            else if(a%4 == 0)
-                lcd_str("Moc 200W        "); //napis
+         if(a%4 == 1)       //jezeli jest na 1 etapie to
+                lcd_str("Moc 800W        "); //wyswietl napis
+         else if(a%4 == 2)   //jesli na 2 to
+                lcd_str("Moc 600W        "); //wyswietl napis
+         else if(a%4 == 3)   //jesli na 3 to
+                lcd_str("Moc 350W        "); //wyswietl napis
+         else if(a%4 == 0)   //jesli na 4 to
+                lcd_str("Moc 200W        "); //wyswietl napis
         lcd_cmd(L_L2); //Ustawienie karetki w pierwszej linii
-                lcd_dat(67);
+                lcd_dat(67);    //wyswietlaj po literze
                 lcd_dat(122);
                 lcd_dat(97);
                 lcd_dat(115);
                 lcd_dat(160);
-                /*
-                if(min/10==0){
-                    lcd_dat(48);
-                }else if (min/10==1){
-                    lcd_dat(49);
-                }else if (min/10==2){
-                    lcd_dat(50);
-                }else if (min/10==3){
-                    lcd_dat(51);
-                }*/
-                lcd_dat(min/10+48);
-                lcd_dat(min%10+48);
-                lcd_dat(58);
-                lcd_dat(sek/10+48);
+         
+                lcd_dat(min/10+48); //wyswietlaja
+                lcd_dat(min%10+48); //aktualny
+                lcd_dat(58);        //czas
+                lcd_dat(sek/10+48); 
                 lcd_dat(sek%10+48);
                 lcd_dat(160);
                 lcd_dat(160);
@@ -250,45 +223,35 @@ void main(void) {
             i--;
         }
                 
-        if(PORTBbits.RB5 == 0)
+        if(PORTBbits.RB5 == 0)  //jesli nacisniety
         {
-            a++;
-            delay(1000);
-            //lcd_cmd(L_CLR);
-            lcd_cmd(L_L1); //Ustawienie karetki w pierwszej linii
-            
-        
+            a++;        //to przelacz na kolejny etap mocy
+            delay(1000);    //spowolnienie o 1 sek
         }
-                   
-        
         if(PORTBbits.RB4 == 0){   
-            min++;
-            if(min>59)
+            min++;      //dodaj minute przy wcisietym guziku
+            if(min>59)  //jesli minut jest wiecej niz 59 to wyzeruj
                 min=0;
-            
-            
         }
         if(PORTBbits.RB3 == 0){      
             
-            sek=sek+10;
-             if(sek>59)
+            sek=sek+10; //dodaj 10 sek
+             if(sek>59) //jesli przekroczy 59 zeruj
                 sek=0;
-            
         }
-        
-        if(PORTBbits.RB2 == 0){  
+        if(PORTBbits.RB2 == 0){  //jesli wcisniety to startuj zegar
             delay(500);
             
-            if (sek==0& min!=0){
+            if (sek==0& min!=0){    //jesli sekundy wybija 0 a sa jeszcze minuty
                 
-                min--;
-                sek=59;
+                min--;  //odejmij minute
+                sek=59; //ustaw sekundy na 59
             }
-            if(sek<=0 & min<=0){
+            if(sek<=0 & min<=0){    //jesli minuty i sekundy wybija 0
                 min=0;
                 sek=0;
                 lcd_cmd(L_L2); //Ustawienie karetki w pierwszej linii
-                lcd_dat(75);
+                lcd_dat(75);    //WYSWIETL NAPIS
                 lcd_dat(111);
                 lcd_dat(110);
                 lcd_dat(105);
@@ -305,21 +268,14 @@ void main(void) {
                 lcd_dat(160);
                 lcd_dat(160);
                 }
-                sek=sek-1;
-                
+                sek=sek-1;          //odejmij 1 sekunde
             }
-           if(PORTBbits.RB1 == 0){
-               min=0;
+           if(PORTBbits.RB1 == 0){  //jezeli wcisniety
+               min=0;   //wyzeruj wszystkie ustawienia
                sek=0;
                a=1;
            
-           }
-                
-           
-                
-        
-        
-      
+           }  
     }
     
     return;
