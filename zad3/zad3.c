@@ -109,16 +109,16 @@ void main(void) {
     {
         PORTD = display; //Wyswietlenie na diodach rejestru D
         
-        delay(1000);
+        delay(1000);    //opoznienie 1 sek
         
         
-         if(PORTBbits.RB3 == 0){
+         if(PORTBbits.RB3 == 0){    //przy wcisnieciu zeruj calosc
              tmp=0;
              display = 0;
          }
          else{
             //Odczyt
-            tmp=((unsigned int)adc(0) / 256);
+            tmp=((unsigned int)adc(0) / 256);   //pobierz dane z potencjometru
             //odczyt postepuje co 10
             //display = (unsigned char)(tmp);
          }
