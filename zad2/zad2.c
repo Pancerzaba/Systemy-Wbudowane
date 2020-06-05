@@ -94,15 +94,15 @@ unsigned int adc(unsigned char kanal)
 
    return ((((unsigned int)ADRESH)<<2)|(ADRESL>>6));
 }
-unsigned int IntToBCD(unsigned char input)
+unsigned int IntToBCD(unsigned char input)      //xmiana liczby na BCD opisane w zad 1
 {
    // input++;
    input = ((input / 10)<<4)|(input & 10);
    return input;
 }
-unsigned int IntToGray(unsigned char input){
-    input++;
-    //input = input^(input>>1);
+unsigned int IntToGray(unsigned char input){    //zamiana liczby na kod Graya opisane w zad 1
+    //input++;
+    input = input^(input>>1);
     return input;
 }
 void main(void) {
@@ -133,11 +133,11 @@ void main(void) {
        
         //Odczyt
         tmp=((unsigned int)adc(1) /200);
-        //odczyt postepuje co 10
+        //odczyt postepuje co 200
          int s=0;
-         if(tmp<1)
-             s=1000;
-         else if(tmp<2)
+         if(tmp<1)  //jezeli jest przed 1 progiem
+             s=1000;    //to predkosc 1 najszybsza
+         else if(tmp<2) //analogicznie jezeli przed 2 i tak dalej dla kolejnych progow
              s=700;
          else if(tmp<3)
              s=300;
@@ -157,27 +157,27 @@ void main(void) {
             i--;
         }
         
-        if(PORTBbits.RB3 == 0)
+        if(PORTBbits.RB3 == 0)  //jezeli wcisniety RB3
         {
-            display = a++;
+              display = a++;    //prze?a?cz na nastepny program
         }
-        else if(PORTBbits.RB4 == 0)
+        else if(PORTBbits.RB4 == 0) //jezeli wcisniemy RB4
         {
-            display = a--;
+            display = a--;  //poprzedni program
         }
         else
-            display = a;   
+            display = a;   // aktualny program
         
-          if(a>1){a=1;}
+          if(a>1){a=1;}     //jesli nie ma nastepnego to zatrzymaj
         
         
-        else if(a==0){
-            display= IntToBCD(dis);
+          else if(a==0){  //okresla 1 kanal 
+            display= IntToBCD(dis); //wywo?aj zmaiane na BCD
             
-        }else if (a==1){
-            display = IntToGray(dis);
+        }else if (a==1){    //okresla 2 kanal
+            display = IntToGray(dis);   //wywolaj zamiane na Graya
         }
-        dis++;
+        dis++; //nastepna liczba 
     }
     
     return;
